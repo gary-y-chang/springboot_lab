@@ -1,0 +1,38 @@
+GET http://localhost:8080/api/greet HTTP/1.1
+
+GET http://localhost/api/greet?name=Marry HTTP/1.1
+
+GET http://localhost:8080/api/users/209 HTTP/1.1
+
+GET http://localhost:8080/api/divide?a=10&b=2 HTTP/1.1
+
+GET http://localhost:8080/api/divide?a=10&b=0 HTTP/1.1
+
+GET http://localhost:8080/api/divide HTTP/1.1
+
+GET http://localhost:8080/api/nope HTTP/1.1
+
+POST http://localhost:8080/api/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "age": 20
+}
+
+POST http://localhost:8080/api/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Mary",
+  "email": "mary@example.com",
+  "age": 30
+}
+
+POST https://api.example.com/login HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+name=foo
+&password=bar
+&remember_me=true

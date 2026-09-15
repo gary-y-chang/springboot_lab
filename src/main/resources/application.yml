@@ -1,0 +1,30 @@
+# 公共配置
+spring:
+  profiles:
+    active: dev   # 預設啟動 dev 環境
+  application:
+    name: lesson05-logging-aop
+
+---
+# 開發環境配置
+spring:
+  config:
+    activate:
+      on-profile: dev
+server:
+  port: 8080
+logging:
+  level:
+    com.example: DEBUG
+
+---
+# 正式環境配置
+spring:
+  config:
+    activate:
+      on-profile: prod
+server:
+  port: 80
+logging:
+  level:
+    com.example: INFO

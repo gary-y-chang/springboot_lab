@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- 定義日誌存放目錄與檔案名稱 -->
+    <property name="LOG_DIR" value="./logs"/>
+    <property name="LOG_FILE" value="app-info"/>
+
+    <!-- 1. 主控台輸出 (Console) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. 檔案輸出與滾動策略 (RollingFile) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 當前正在寫入的日誌檔案路徑 -->
+        <file>${LOG_DIR}/${LOG_FILE}.log</file>
+
+        <!-- 滾動策略：每天建立一個新檔案，或者檔案滿 10MB 就切分 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 歷史日誌歸檔的路徑格式 (例如：app-info.2026-09-12.0.log.gz) -->
+            <fileNamePattern>${LOG_DIR}/archived/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- 每個檔案的最大容量 -->
+            <maxFileSize>5MB</maxFileSize>
+            <!-- 歷史日誌保留天數 -->
+            <maxHistory>30</maxHistory>
+            <!-- 所有日誌檔案的總容量上限 -->
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+
+        <!-- 寫入檔案的文字格式 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 3. 依環境綁定 Appender -->
+
+    <!-- 開發環境 (dev)：只輸出到主控台 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- 正式環境 (prod)：同時輸出到主控台，並寫入檔案 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- 未指定 profile 時的預設行為 -->
+    <springProfile name="!dev &amp; !prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>
