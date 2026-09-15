@@ -1,0 +1,200 @@
+### Lesson 07 · Lab 2：EmployeeController（Controller → Service → Repository → MySQL）
+### 前置作業：
+###   1. 啟動 MySQL（sample_db），ddl-auto=update 會自動建立 employees 資料表
+###   2. 先執行下方「新增」數筆資料，再測查詢／更新／刪除
+###   3. id 請依實際回傳值調整（IDENTITY 自動遞增）
+
+### 新增員工 -> 201 Created
+POST http://localhost:8080/employees HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "王小明",
+  "age": 28,
+  "email": "ming@example.com"
+}
+
+### 再新增一筆（email 有 unique 限制，不可重複）
+POST http://localhost:8080/employees HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "李小華",
+  "age": 35,
+  "email": "hua@example.com"
+}
+
+### 再新增一筆，方便測試分頁
+POST http://localhost:8080/employees HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "張美玲",
+  "age": 42,
+  "email": "ling@example.com"
+}
+
+### 查詢全部 -> 200 OK（status 預設 ACTIVE，由 Entity 欄位初始值決定）
+GET http://localhost:8080/employees HTTP/1.1
+
+### 依 id 查詢 -> 200 OK
+GET http://localhost:8080/employees/1 HTTP/1.1
+
+### 不存在的 id -> NoSuchElementException
+### GlobalExceptionHandler 未針對此例外處理，會落到保底的 Exception -> 500 INTERNAL_ERROR
+GET http://localhost:8080/employees/999 HTTP/1.1
+
+### id 型別錯誤 -> 400 TYPE_MISMATCH
+GET http://localhost:8080/employees/abc HTTP/1.1
+
+### 分頁 + 排序（依 name 降冪），第 0 頁、每頁 2 筆
+GET http://localhost:8080/employees/page?page=0&size=2 HTTP/1.1
+
+### 第 1 頁（第二頁資料）
+GET http://localhost:8080/employees/page?page=1&size=2 HTTP/1.1
+
+### 參數省略時，@RequestParam(defaultValue) 生效 -> page=0、size=10
+GET http://localhost:8080/employees/page HTTP/1.1
+
+### 更新 -> 200 OK（id 已存在 → UPDATE）
+PUT http://localhost:8080/employees/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "王小明（資深）",
+  "age": 29,
+  "email": "ming@example.com"
+}
+
+### 更新不存在的 id -> NoSuchElementException -> 500
+PUT http://localhost:8080/employees/999 HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "查無此人",
+  "age": 30,
+  "email": "nobody@example.com"
+}
+
+### @Valid 驗證失敗 -> 400 VALIDATION_FAILED
+### name 空白（@NotBlank）、age 未滿 15（@Min(15)）、email 格式錯誤（@Email）
+POST http://localhost:8080/employees HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": " ",
+  "age": 10,
+  "email": "invalid-email-format"
+}
+
+### JSON 格式錯誤（少一個引號）-> 400 MALFORMED_REQUEST
+POST http://localhost:8080/employees HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "格式錯誤,
+  "age": 30,
+  "email": "bad@example.com"
+}
+
+### 不支援的 HTTP 方法（/employees 沒有 DELETE）-> 405 METHOD_NOT_ALLOWED
+DELETE http://localhost:8080/employees HTTP/1.1
+
+### 刪除 -> 204 No Content
+DELETE http://localhost:8080/employees/3 HTTP/1.1
+
+### 刪除不存在的 id -> NoSuchElementException -> 500
+DELETE http://localhost:8080/employees/999 HTTP/1.1
+
+### 刪除後再查詢，確認資料已消失
+GET http://localhost:8080/employees HTTP/1.1
+
+### ============================================================
+### Lesson 07 · UserController（/users）
+### 對應 entity/User.java、UserRepository（衍生查詢）、UserCustomRepository（自訂查詢）
+### 注意：另有 com.example.controller.UserController 佔用 /api/users，兩者路徑不同不會衝突
+### ============================================================
+
+### 新增 -> 201 Created
+POST http://localhost:8080/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "email": "alice@example.com"
+}
+
+###
+POST http://localhost:8080/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Bob",
+  "email": "bob@admin.example.com"
+}
+
+###
+POST http://localhost:8080/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Cathy",
+  "email": "cathy@example.com"
+}
+
+### 查詢全部 -> 200 OK
+GET http://localhost:8080/users HTTP/1.1
+
+### 依 id 查詢 -> 200 OK
+GET http://localhost:8080/users/1 HTTP/1.1
+
+### 不存在的 id -> NoSuchElementException -> 500 INTERNAL_ERROR
+GET http://localhost:8080/users/999 HTTP/1.1
+
+### 分頁 + 排序（依 name 降冪）
+GET http://localhost:8080/users/page?page=0&size=2 HTTP/1.1
+
+### 省略參數 -> page=0、size=10
+GET http://localhost:8080/users/page HTTP/1.1
+
+### 自訂 Repository：name 或 email 任一包含 keyword（native SQL LIKE）
+GET http://localhost:8080/users/search?keyword=admin HTTP/1.1
+
+### 衍生查詢 findByEmail：精準比對
+GET http://localhost:8080/users/by-email?email=alice@example.com HTTP/1.1
+
+### 查無 email -> NoSuchElementException -> 500
+GET http://localhost:8080/users/by-email?email=nobody@example.com HTTP/1.1
+
+### 衍生查詢 findByName：可回傳多筆
+GET http://localhost:8080/users/by-name?name=Alice HTTP/1.1
+
+### countByName：只回傳筆數
+GET http://localhost:8080/users/count?name=Alice HTTP/1.1
+
+### 缺少必填 query 參數 -> 400 MISSING_PARAMETER
+GET http://localhost:8080/users/search HTTP/1.1
+
+### 更新 -> 200 OK
+PUT http://localhost:8080/users/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Alice Lin",
+  "email": "alice.lin@example.com"
+}
+
+### @Valid 驗證失敗 -> 400 VALIDATION_FAILED（name 空白、email 格式錯誤）
+POST http://localhost:8080/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": " ",
+  "email": "not-an-email"
+}
+
+### 刪除 -> 204 No Content
+DELETE http://localhost:8080/users/3 HTTP/1.1
+
+### 刪除不存在的 id -> NoSuchElementException -> 500
+DELETE http://localhost:8080/users/999 HTTP/1.1

@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>com.example</groupId>
-    <artifactId>lesson05-logging-aop</artifactId>
+    <artifactId>springboot_lab</artifactId>
     <version>1.0.0</version>
-    <name>lesson05-logging-aop</name>
-    <description>Lesson 05 Part B — SLF4J + Logback + Spring AOP 自動記錄 API 日誌</description>
+    <name>springboot_lab</name>
+    <description>Spring Boot 專案範例，包含 JPA 基礎篇、內建 CRUD 範例、參考解範例、Lab 範例。</description>
 
     <properties>
         <java.version>21</java.version>
@@ -46,7 +46,19 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        
+        <!-- Spring Data JPA（不需寫版本號，由 Parent BOM 管理） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
         <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>

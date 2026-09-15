@@ -124,10 +124,12 @@ console 中指定 chcp 碼：
 
 ```bash
 chcp 65001
+```
 
 
 # Lesson 06 · Spring MVC Web 請求處理
-# 檔案對照
+
+## 檔案對照
 
 | 檔案 | 對應投影片 |
 |---|---|
@@ -136,3 +138,37 @@ chcp 65001
 | `dto/UserRegisterDto.java` + `controller/AuthController.java` | @Valid 與 Bean Validation |
 | `dto/ProductDto.java`、`service/ProductService.java`、`controller/ProductController.java` | Lab 1：商品 CRUD ＋ Lab 3：驗證 |
 | `controller/CategoryProductController.java` | Lab 2：路徑變數 ＋ 查詢參數並用 |
+
+
+# Lesson 07 · Spring Data JPA 基礎篇 — 範例程式與 Lab 參考解
+
+Spring Boot **4.1.1** / Java 21 / Maven。
+
+## 執行
+
+```bash
+cd labs-lesson07
+./mvnw spring-boot:run      # 或 mvn spring-boot:run
+```
+
+啟動後：
+
+- REST 端點：<http://localhost:8080/employees>
+
+## 目錄對照
+
+| 路徑 | 對應投影片 |
+| --- | --- |
+| `entity/Employee.java` | B.1 Entity 定義、@Entity 規則、B.2 欄位映射 |
+| `repository/EmployeeRepository.java` | C.1 JpaRepository、Lab 1 參考解 |
+| `service/EmployeeService.java` | C.2 內建 CRUD、Lab 2 參考解 |
+| `controller/EmployeeController.java` | Lab 2 串接三層與 REST 端點 |
+| `examples/User*.java` | 課堂範例（標準用法 / 自訂擴充 / 分頁排序） |
+| `resources/application.yml` | A.4 連線設定（H2 預設、MySQL 註解版） |
+| `resources/application-mysql.properties` | A.4 方案 A：properties 寫法 |
+| `resources/data.sql` | H2 初始化資料 |
+
+## Lab 對照
+
+- **Lab 1**：`Employee` Entity ＋ `EmployeeRepository` 完成 CRUD（取代記憶體 List）。
+- **Lab 2**：Controller → Service → Repository → H2，讓 REST 端點真正操作資料庫。
