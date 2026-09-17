@@ -47,6 +47,11 @@ public class EmployeeController {
         return service.get(id);
     }
 
+    @GetMapping("/name-email")
+    public EmployeeDto get(@RequestParam String name, @RequestParam String email) { 
+        return service.get(name, email);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EmployeeDto create(@Valid @RequestBody EmployeeRequest request) {

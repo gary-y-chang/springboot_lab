@@ -1,6 +1,7 @@
 package com.example.lesson06.controller;
 
 import com.example.lesson06.dto.UserResponseDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,14 +23,15 @@ import java.time.LocalDateTime;
 public class UserProfileController {
 
     @GetMapping("/me")
-    public UserResponseDto getMyProfile() {
+    public ResponseEntity<UserResponseDto> getMyProfile() {
         // 模擬從資料庫查出資料後，組裝成 DTO
-        return new UserResponseDto(
+
+        return ResponseEntity.status(250).body(new UserResponseDto(
                 101L,
                 "小明",
                 LocalDateTime.now(),
                 null,                        // 故意給 null，測試 @JsonInclude 排除效果
                 "這是後台備註，前端不該看到"   // 故意給值，測試 @JsonIgnore 隱藏效果
-        );
+        ));
     }
 }

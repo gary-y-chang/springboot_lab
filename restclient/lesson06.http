@@ -34,10 +34,10 @@ POST http://localhost:8080/api/auth/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "小明",
+  "username": "",
   "password": "secret123",
   "email": "ming@example.com",
-  "age": 25
+  "age": 19
 }
 
 ### 驗證失敗 -> 400 Bad Request

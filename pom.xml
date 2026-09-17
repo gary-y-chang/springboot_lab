@@ -47,7 +47,7 @@
             <optional>true</optional>
         </dependency>
         
-        <!-- Spring Data JPA（不需寫版本號，由 Parent BOM 管理） -->
+        <!-- Spring Data JPA（不需寫版本號，由 Parent BOM 管理）  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -58,7 +58,8 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+      
+
         <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>

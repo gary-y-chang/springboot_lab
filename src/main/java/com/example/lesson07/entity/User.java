@@ -15,14 +15,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String userName;
     private String email;
 
     public User() {          // 無參數建構子
     }
 
     public User(String name, String email) {
-        this.name = name;
+        this.userName = name;
         this.email = email;
     }
 
@@ -30,12 +30,12 @@ public class User {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getUserName() {
+        return userName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.userName = name;
     }
 
     public String getEmail() {

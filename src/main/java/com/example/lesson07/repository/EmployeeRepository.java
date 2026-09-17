@@ -25,7 +25,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findByName(String name);
 
-    List<Employee> findByAgeGreaterThanEqual(int age);
+    List<Employee> findByNameAndEmail(String name, String email); 
+
+    List<Employee> findByAgeGreaterThanEqual(int age); 
 
     long countByStatus(com.example.lesson07.entity.EmployeeStatus status);
 }

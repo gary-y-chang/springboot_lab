@@ -29,7 +29,7 @@ public class BookController {
     // GET http://localhost:8080/books/search?keyword=Java&limit=10
     @GetMapping("/search")
     public String searchBooks(
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "5") int limit) { // limit 若沒傳，預設為 5
         return "搜尋關鍵字: " + keyword + "，限制顯示筆數: " + limit;
     }

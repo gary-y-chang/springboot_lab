@@ -10,6 +10,7 @@ import com.example.lesson07.dto.UserRequest;
 import com.example.lesson07.entity.User;
 import com.example.lesson07.repository.UserCustomRepository;
 import com.example.lesson07.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,7 +51,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public void read() {
         Optional<User> userOpt = userRepository.findById(1L);
-        userOpt.ifPresent(user -> System.out.println(user.getName()));
+        userOpt.ifPresent(user -> System.out.println(user.getUserName()));
 
         List<User> allUsers = userRepository.findAll();
         boolean exists = userRepository.existsById(1L);
@@ -94,7 +95,15 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDto> findAll() {
-        return userRepository.findAll().stream().map(UserDto::from).toList();
+        List<UserDto> userDtos = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            userDtos.add(new UserDto(user.getId(), user.getUserName(), user.getEmail()));
+        }
+
+        return userDtos;
+
+        // return userRepository.findAll().stream().map(UserDto::from).toList();
     }
 
     @Transactional(readOnly = true)

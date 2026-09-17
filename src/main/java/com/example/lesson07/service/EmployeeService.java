@@ -37,6 +37,13 @@ public class EmployeeService {
         return EmployeeDto.from(employee);
     }
 
+    public EmployeeDto get(String name, String email) {
+        Employee employee = repository.findByNameAndEmail(name, email).stream().findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Employee " + name + " not found"));
+                
+        return EmployeeDto.from(employee);
+    }
+
     /** 分頁與排序：第 page 頁、每頁 size 筆，依 name 降冪。 */
     public List<EmployeeDto> findPage(int page, int size) {
         Page<Employee> result = repository.findAll(
