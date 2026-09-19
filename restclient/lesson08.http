@@ -1,0 +1,204 @@
+### Lesson 08：JPA 查詢與實體關聯
+### 前置作業：
+###   1. 啟動 MySQL（sample_db），DataSeeder 會自動塞入 4 個部門 / 100 名員工、2 位使用者、2 位學生 / 2 門課
+###   2. 觀察 Console 印出的 SQL（spring.jpa.show-sql=true）
+###   3. id 請依實際回傳值調整
+
+@host = http://localhost:8080/lesson08
+
+############################################################
+### B.1 一對多：Department（被動方）↔ Employee（擁有方）
+############################################################
+
+### Lab 1：查部門（含員工）
+GET {{host}}/departments/1
+
+### Lab 1：查某部門的員工
+GET {{host}}/departments/1/employees
+
+### Lab 1：在部門底下新增員工（cascade 連帶寫入）
+POST {{host}}/departments/1/employees
+Content-Type: application/json
+
+{ "name": "新人", "age": 23, "email": "newbie@example.com" }
+
+### 列出所有部門：lazy（N+1）
+GET {{host}}/departments?fetch=lazy
+
+### 列出所有部門：JOIN FETCH（1 筆 SQL）
+GET {{host}}/departments?fetch=join-fetch
+
+### 列出所有部門：@EntityGraph（1 筆 SQL）
+GET {{host}}/departments?fetch=entity-graph
+
+### 依名稱查部門
+GET {{host}}/departments/by-name?name=研發部
+
+### 新增部門 -> 201
+POST {{host}}/departments
+Content-Type: application/json
+
+{ "name": "測試部" }
+
+### 部門改名（Dirty Checking）
+PUT {{host}}/departments/5
+Content-Type: application/json
+
+{ "name": "品保部" }
+
+### 員工調部門（改擁有方外鍵 dept_id）
+PUT {{host}}/employees/10/department/5
+
+### orphanRemoval：員工從部門集合移除 -> 被自動 DELETE
+DELETE {{host}}/departments/5/employees/10
+
+### cascade = ALL：刪部門連帶刪除旗下員工
+DELETE {{host}}/departments/5
+
+### 查單一員工
+GET {{host}}/employees/1
+
+### 修改員工（只更新有給值的欄位）
+PUT {{host}}/employees/1
+Content-Type: application/json
+
+{ "age": 40 }
+
+############################################################
+### A 查詢：命名查詢 / JPQL / Native SQL
+############################################################
+
+### Lab 2.1：姓名關鍵字
+GET {{host}}/employees/search?keyword=Employee1
+
+### Lab 2.2：年齡區間
+GET {{host}}/employees/age?lo=25&hi=30
+
+### Lab 2.3：依部門名稱（JPQL）
+GET {{host}}/employees/by-dept?name=研發部
+
+### A.3：位置參數 ?1 ?2
+GET {{host}}/employees/lookup?email=user1@example.com&name=Employee1
+
+### A.4：Native SQL
+GET {{host}}/employees/older-than?age=50
+
+### Lab 3：N+1（100 名員工 → 1 + 4 筆 SQL）
+GET {{host}}/lab3/n-plus-one
+
+### Lab 3：JOIN FETCH
+GET {{host}}/lab3/join-fetch
+
+### Lab 3：@EntityGraph
+GET {{host}}/lab3/entity-graph
+
+############################################################
+### B.2 一對一：User ↔ UserProfile
+############################################################
+
+### 列出使用者（注意被動方 OneToOne 的額外 SQL）
+GET {{host}}/users
+
+### JPQL
+GET {{host}}/users/status/ACTIVE
+
+### Native SQL
+GET {{host}}/users/status/ACTIVE?nativeSql=true
+
+### JPQL 位置參數
+GET {{host}}/users/lookup?email=alice@example.com&lastName=Wang
+
+### MySQL 專用語法：最近一天建立
+GET {{host}}/users/recent
+
+### 命名查詢
+GET {{host}}/users/search?keyword=a
+
+### 新增使用者 + profile（cascade）-> 201
+POST {{host}}/users
+Content-Type: application/json
+
+{ "username": "carol", "lastName": "Lin", "email": "carol@example.com", "status": "ACTIVE", "bio": "產品經理" }
+
+### 修改 bio（沒有 profile 會新增一筆）
+PUT {{host}}/users/3/profile
+Content-Type: application/json
+
+{ "bio": "資深產品經理" }
+
+### 刪除使用者（cascade 連帶刪除 profile）
+DELETE {{host}}/users/3
+
+############################################################
+### B.3 單純多對多：SimpleStudent ↔ SimpleCourse
+############################################################
+
+### 新增學生
+POST {{host}}/simple/students
+Content-Type: application/json
+
+{ "name": "阿強" }
+
+### 新增課程
+POST {{host}}/simple/courses
+Content-Type: application/json
+
+{ "title": "Java 入門" }
+
+### 選課（寫入中間表 simple_student_courses）
+POST {{host}}/simple/students/1/courses/1
+
+### 列出學生：N+1
+GET {{host}}/simple/students
+
+### 列出學生：JOIN FETCH（沒選課的學生不會出現）
+GET {{host}}/simple/students/with-courses
+
+### 從被動方 Course 反查學生
+GET {{host}}/simple/courses
+
+### 退選（只刪中間表那一列）
+DELETE {{host}}/simple/students/1/courses/1
+
+############################################################
+### B.6 中間表升格為實體：Student ↔ StudentCourse ↔ Course
+############################################################
+
+### 列出學生 / 課程
+GET {{host}}/students
+
+###
+GET {{host}}/courses
+
+### 新增學生 / 課程
+POST {{host}}/students
+Content-Type: application/json
+
+{ "name": "小美" }
+
+###
+POST {{host}}/courses
+Content-Type: application/json
+
+{ "title": "Docker 入門" }
+
+### 由 Student 端選課
+POST {{host}}/enrollments?studentId=3&courseId=3&grade=80
+
+### 由 Course 端選課
+POST {{host}}/enrollments/from-course?studentId=3&courseId=1&grade=66
+
+### 某學生的成績單
+GET {{host}}/enrollments/students/3
+
+### 某課程的成績排行
+GET {{host}}/enrollments/courses/1
+
+### 修改中間表的額外欄位 grade
+PUT {{host}}/students/3/courses/1?grade=90
+
+### 退選：orphanRemoval 刪除中間表那一列
+DELETE {{host}}/students/3/courses/1
+
+### 刪學生：cascade 連帶刪除所有選課紀錄
+DELETE {{host}}/students/3
